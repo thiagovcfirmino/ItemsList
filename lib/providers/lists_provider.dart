@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import '../models/item_list.dart';
-import '../services/database/database_service.dart';
+import '../services/database/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
 class ListsProvider with ChangeNotifier {
-  final DatabaseService _db = DatabaseService.instance;
+  final StorageService _db = StorageService.instance;
   List<ItemList> _lists = [];
   bool _isLoading = false;
   String? _error;
@@ -15,15 +15,18 @@ class ListsProvider with ChangeNotifier {
 
   // Load all lists
   Future<void> loadLists() async {
+    print('ListsProvider: Loading lists...');
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       _lists = await _db.getAllLists();
+      print('ListsProvider: Loaded ${_lists.length} lists');
       _isLoading = false;
       notifyListeners();
     } catch (e) {
+      print('ListsProvider: Error loading lists: $e');
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
@@ -46,6 +49,7 @@ class ListsProvider with ChangeNotifier {
     String? coverImagePath,
   }) async {
     try {
+      print('ListsProvider: Creating list with name: $name');
       final list = ItemList(
         id: const Uuid().v4(),
         name: name,
@@ -56,10 +60,14 @@ class ListsProvider with ChangeNotifier {
         updatedAt: DateTime.now(),
       );
 
+      print('ListsProvider: Created list object: ${list.toString()}');
       await _db.createList(list);
+      print('ListsProvider: List created, reloading lists...');
       await loadLists();
+      print('ListsProvider: Lists reloaded. Current count: ${_lists.length}');
       return list.id;
     } catch (e) {
+      print('ListsProvider: Error creating list: $e');
       _error = e.toString();
       notifyListeners();
       return null;

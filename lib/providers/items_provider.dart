@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import '../models/item.dart';
 import '../models/enums.dart';
-import '../services/database/database_service.dart';
+import '../services/database/storage_service.dart';
 import 'package:uuid/uuid.dart';
 
 class ItemsProvider with ChangeNotifier {
-  final DatabaseService _db = DatabaseService.instance;
+  final StorageService _db = StorageService.instance;
   List<Item> _items = [];
   List<Item> _filteredItems = [];
   bool _isLoading = false;
